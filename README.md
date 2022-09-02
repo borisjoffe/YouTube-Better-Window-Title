@@ -4,6 +4,7 @@ Youtube Better Window Title
 Features
 --------
 - Add video length in minutes (rounded) and Channel Name to Window Title to browse through your youtube tabs more easily
+- When double-clicking on the video date, copy a wiki link (compatible with zim-wiki) to the clipboard to make it easier to add video references in PIM system
 
 Requires
 --------

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.1
+// @version      1.2
 // @description  Add video length (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -9,6 +9,7 @@
 // ==/UserScript==
 
 // UPDATES:
+// 2021-01-13 - add zim wiki link when double clicking date
 // 2020-07-21 - fix bug where clicking on new videos doesn't update title (due to using initial player data instead of DOM)
 
 /*
@@ -120,6 +121,31 @@ function updateWindowTitle() {
 	//isTitleUpdated = true;
 }
 
+function getVideoDate() {
+    return qsv('#date').innerText.trim();
+}
+
+function getVideoYear() {
+    const dateArr = getVideoDate().split(',')
+    return dateArr[dateArr.length - 1].trim()
+}
+
+function createWikiLink() {
+    return '[[' + window.location.href + '|' + getVideoTitle() + ']] - '
+        + getChannelName() + ', ' + getVideoYear() + ', ' + getVideoLengthFriendly()
+}
+
+function $createWikiLink() {
+    /*
+    qsv('#info.ytd-video-primary-info-renderer').lastChild.innerHTML +=
+        '<div class="style-scope ytd-video-primary-info-renderer" style="color: white">'
+        + createWikiLink()
+        + '</div>'
+    */
+
+    navigator.clipboard.writeText(createWikiLink())
+}
+
 
 var isTitleUpdated = false;
 function waitForLoad() {
@@ -149,6 +175,10 @@ function waitForLoad() {
 			updateWindowTitle();
 		//}
 	//}, 20);
+
+
+    qsv('#info.ytd-video-primary-info-renderer').addEventListener('dblclick', $createWikiLink, true)
+
 }
 
 setTimeout(function () {
