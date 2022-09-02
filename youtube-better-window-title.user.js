@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.2
+// @version      1.2.3
 // @description  Add video length (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -52,11 +52,14 @@ function dbg() {
 	return arguments[0];
 }
 
+function log(...args) {
+    console.log(...args)
+    return args[1]
+}
 
 var
 	qs = document.querySelector.bind(document),
 	err = console.error.bind(console),
-	log = console.log.bind(console),
 	euc = encodeURIComponent;
 
 function qsv(elmStr, parent) {
@@ -124,12 +127,12 @@ function updateWindowTitle() {
 }
 
 function getVideoDate() {
-    return qsv('#date').innerText.trim();
+    return qsv('[itemprop="datePublished"]').getAttribute('content')
 }
 
 function getVideoYear() {
-    const dateArr = getVideoDate().split(',')
-    return dateArr[dateArr.length - 1].trim()
+    const [ year, month, day ] = getVideoDate().split('-')
+    return [ year, month ].join('-')
 }
 
 function createWikiLink() {
@@ -145,7 +148,7 @@ function $createWikiLink() {
         + '</div>'
     */
 
-    navigator.clipboard.writeText(createWikiLink())
+    navigator.clipboard.writeText(log('wiki link:', createWikiLink()))
 }
 
 
