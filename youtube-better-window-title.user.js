@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      0.1
+// @version      1.0
 // @description  Add video length (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -91,6 +91,8 @@ function getChannelName() {
 }
 
 function getChannelNameShort() {
+	// TODO: Update
+	// if over 20? chars, extract all capital letters? extract all capital letters chars after first 10?
 	return getChannelName().substr(0, 20);
 }
 
@@ -109,9 +111,14 @@ function updateWindowTitle() {
 	var videoTitle = getVideoTitleShort();
 
 // 	setWindowTitle([videoLength, channelName, videoTitle].join('—'));
-	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
-	setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
+	setWindowTitle([videoLength + ', ' + channelName, videoTitle].join('—'));
+	setTimeout(updateWindowTitle, (DEBUG ? 4000 : 4000));
 	//isTitleUpdated = true;
+
+	// TODO: add extra title for pasting into zim
+	// <full video title> - <short channel name>, YYYY-MM, <video length minutes>
+	// [[url:<full video title>]] - <short channel name>, YYYY-MM, <video length minutes>
+	// <short channel name> - [[url:<full video title>]], YYYY-MM, <video length minutes>
 }
 
 
