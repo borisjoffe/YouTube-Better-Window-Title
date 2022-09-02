@@ -1,17 +1,20 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.0
+// @version      1.1
 // @description  Add video length (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
 // @grant        unsafeWindow
 // ==/UserScript==
 
+// UPDATES:
+// 2020-07-21 - fix bug where clicking on new videos doesn't update title (due to using initial player data instead of DOM)
+
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018 Boris Joffe
+Copyright (c) 2018, 2020 Boris Joffe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -78,7 +81,8 @@ function setWindowTitle(newTitle) {
 }
 
 function getVideoLengthSeconds() {
-	return unsafeWindow.ytInitialPlayerResponse.videoDetails.lengthSeconds;
+    return qsv('.ytp-progress-bar').getAttribute('aria-valuemax')
+	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.lengthSeconds;
 }
 
 function getVideoLengthFriendly() {
@@ -87,17 +91,17 @@ function getVideoLengthFriendly() {
 }
 
 function getChannelName() {
-	return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
+    return qsv('#channel-name').innerText
+	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
 }
 
 function getChannelNameShort() {
-	// TODO: Update
-	// if over 20? chars, extract all capital letters? extract all capital letters chars after first 10?
 	return getChannelName().substr(0, 20);
 }
 
 function getVideoTitle() {
-	return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
+    return qsv('.title.ytd-video-primary-info-renderer').innerText
+	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
 }
 
 function getVideoTitleShort() {
@@ -111,14 +115,9 @@ function updateWindowTitle() {
 	var videoTitle = getVideoTitleShort();
 
 // 	setWindowTitle([videoLength, channelName, videoTitle].join('—'));
-	setWindowTitle([videoLength + ', ' + channelName, videoTitle].join('—'));
-	setTimeout(updateWindowTitle, (DEBUG ? 4000 : 4000));
+	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
+	setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
 	//isTitleUpdated = true;
-
-	// TODO: add extra title for pasting into zim
-	// <full video title> - <short channel name>, YYYY-MM, <video length minutes>
-	// [[url:<full video title>]] - <short channel name>, YYYY-MM, <video length minutes>
-	// <short channel name> - [[url:<full video title>]], YYYY-MM, <video length minutes>
 }
 
 
@@ -154,7 +153,7 @@ function waitForLoad() {
 
 setTimeout(function () {
 	waitForLoad();
-}, 8000);
+}, 5000);
 // window eventListener doesn't work well for some reason
 // 	window.addEventListener('load', waitForLoad, true);
 log('youtube better window title')
