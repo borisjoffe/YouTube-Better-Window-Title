@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.3
+// @version      1.2.4
 // @description  Add video length (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -9,6 +9,7 @@
 // ==/UserScript==
 
 // UPDATES:
+// 2022-01-07 - fix '#date' selector not working anymore
 // 2021-05-24 - fix channel name to avoid duplicate text
 // 2021-05-07 - fix newlines and extra whitespace in channel name
 // 2021-01-13 - add zim wiki link when double clicking date
@@ -17,7 +18,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018, 2020, 2021 Boris Joffe
+Copyright (c) 2018, 2020, 2021, 2022 Boris Joffe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -52,14 +53,11 @@ function dbg() {
 	return arguments[0];
 }
 
-function log(...args) {
-    console.log(...args)
-    return args[1]
-}
 
 var
 	qs = document.querySelector.bind(document),
 	err = console.error.bind(console),
+	log = console.log.bind(console),
 	euc = encodeURIComponent;
 
 function qsv(elmStr, parent) {
@@ -127,12 +125,12 @@ function updateWindowTitle() {
 }
 
 function getVideoDate() {
-    return qsv('[itemprop="datePublished"]').getAttribute('content')
+    return getProp(qsv('#date'), 'innerText', '').trim() || qsv('meta[itemprop="uploadDate"]').getAttribute('content')
 }
 
 function getVideoYear() {
-    const [ year, month, day ] = getVideoDate().split('-')
-    return [ year, month ].join('-')
+    const dateArr = getVideoDate().split(',')
+    return dateArr[dateArr.length - 1].trim()
 }
 
 function createWikiLink() {
@@ -148,7 +146,7 @@ function $createWikiLink() {
         + '</div>'
     */
 
-    navigator.clipboard.writeText(log('wiki link:', createWikiLink()))
+    navigator.clipboard.writeText(createWikiLink())
 }
 
 
