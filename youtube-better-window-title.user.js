@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.5
-// @description  Add video length (rounded) and Channel Name to Window Title
+// @version      1.2.6
+// @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
 // @grant        unsafeWindow

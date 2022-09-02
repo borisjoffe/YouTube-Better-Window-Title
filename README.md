@@ -1,10 +1,18 @@
 Youtube Better Window Title
 =============================
 
+### Install from [GreasyFork](https://greasyfork.org/en/scripts/450646-youtube-better-window-title)
+
 Features
 --------
 - Add video length in minutes (rounded) and Channel Name to Window Title to browse through your youtube tabs more easily
 - When double-clicking on the video date, copy a wiki link (compatible with zim-wiki) to the clipboard to make it easier to add video references in PIM system
+
+
+Known Issues
+------------
+When navigating from a non-video page (e.g. Home, Subscriptions), the script may not run. If the title doesn't appear within 5-10 seconds, refresh the page
+
 
 Requires
 --------
@@ -13,6 +21,10 @@ One of the following:
 - [GreaseMonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) with [Firefox](https://www.mozilla.org/firefox)
 - [ViolentMonkey](https://addons.opera.com/en/extensions/details/violent-monkey/) / [TamperMonkey](https://addons.opera.com/en/extensions/details/tampermonkey-beta/?display=en) with [Opera](http://www.opera.com/) - untested
 
+
+[View on Github](https://github.com/borisjoffe/YouTube-Better-Window-Title)
+
 License
 -------
 MIT
+
