@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.1
+// @version      1.2.2
 // @description  Add video length (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -9,6 +9,7 @@
 // ==/UserScript==
 
 // UPDATES:
+// 2021-05-24 - fix channel name to avoid duplicate text
 // 2021-05-07 - fix newlines and extra whitespace in channel name
 // 2021-01-13 - add zim wiki link when double clicking date
 // 2020-07-21 - fix bug where clicking on new videos doesn't update title (due to using initial player data instead of DOM)
@@ -16,7 +17,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018, 2020 Boris Joffe
+Copyright (c) 2018, 2020, 2021 Boris Joffe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -93,7 +94,7 @@ function getVideoLengthFriendly() {
 }
 
 function getChannelName() {
-    return qsv('#channel-name').innerText.replaceAll('\n', '').trim()
+    return qsv('#channel-name a').innerText.replaceAll('\n', '').trim()
 	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
 }
 
