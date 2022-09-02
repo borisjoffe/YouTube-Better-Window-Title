@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.4
+// @version      1.2.5
 // @description  Add video length (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -9,6 +9,7 @@
 // ==/UserScript==
 
 // UPDATES:
+// 2022-09-02 - fix date selector - change from #info... to #description
 // 2022-01-07 - fix '#date' selector not working anymore
 // 2021-05-24 - fix channel name to avoid duplicate text
 // 2021-05-07 - fix newlines and extra whitespace in channel name
@@ -179,8 +180,8 @@ function waitForLoad() {
 		//}
 	//}, 20);
 
-
-    qsv('#info.ytd-video-primary-info-renderer').addEventListener('dblclick', $createWikiLink, true)
+    // update selector to #description
+    qsv('#description').addEventListener('dblclick', $createWikiLink, true)
 
 }
 
