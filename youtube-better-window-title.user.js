@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.7
+// @version      1.2.8
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -40,19 +40,19 @@ THE SOFTWARE.
 // Util
 const DEBUG = false;
 function dbg() {
-	if (DEBUG)
-		console.log.apply(console, arguments);
+    if (DEBUG)
+        console.log.apply(console, arguments);
 
-	return arguments[0];
+    return arguments[0];
 }
 
 
 var
-	qs = document.querySelector.bind(document),
-	qsa = document.querySelectorAll.bind(document),
-	err = console.error.bind(console),
-	log = console.log.bind(console),
-	euc = encodeURIComponent;
+    qs = document.querySelector.bind(document),
+    qsa = document.querySelectorAll.bind(document),
+    err = console.error.bind(console),
+    log = console.log.bind(console),
+    euc = encodeURIComponent;
 
 function qsv(elmStr, parent) {
     var elm
@@ -60,76 +60,76 @@ function qsv(elmStr, parent) {
     else if (typeof parent === 'object') elm = parent.querySelector(elmStr)
     else elm = qs(elmStr);
 
-	if (!elm) err('(qs) Could not get element -', elmStr);
-	return elm;
+    if (!elm) err('(qs) Could not get element -', elmStr);
+    return elm;
 }
 
 function qsav(elmStr, parent) {
-	var elm
+    var elm
     if (typeof parent === 'string') elm = qsv(parent).querySelectorAll(elmStr)
     else if (typeof parent === 'object') elm = parent.querySelectorAll(elmStr)
     else elm = qsa(elmStr);
 
-	if (!elm) err('(qsa) Could not get element -', elmStr);
-	return elm;
+    if (!elm) err('(qsa) Could not get element -', elmStr);
+    return elm;
 }
 
 function getProp(obj, path, defaultValue) {
-	path = Array.isArray(path) ? Array.from(path) : path.split('.');
-	var prop = obj;
+    path = Array.isArray(path) ? Array.from(path) : path.split('.');
+    var prop = obj;
 
-	while (path.length && obj) {
-		prop = obj[path.shift()];
-	}
+    while (path.length && obj) {
+        prop = obj[path.shift()];
+    }
 
-	return prop != null ? prop : defaultValue;
+    return prop != null ? prop : defaultValue;
 }
 
 function getWindowTitle() { return document.title; }
 
 function setWindowTitle(newTitle) {
-	document.title = newTitle;
-	log('newTitle =', newTitle);
+    document.title = newTitle;
+    log('newTitle =', newTitle);
 }
 
 function getVideoLengthSeconds() {
     return qsv('.ytp-progress-bar').getAttribute('aria-valuemax')
-	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.lengthSeconds;
+    // return unsafeWindow.ytInitialPlayerResponse.videoDetails.lengthSeconds;
 }
 
 function getVideoLengthFriendly() {
-	// TODO: update
-	return Math.round(getVideoLengthSeconds() / 60) + 'm';
+    // TODO: update
+    return Math.round(getVideoLengthSeconds() / 60) + 'm';
 }
 
 function getChannelName() {
     return qsv('#channel-name a').innerText.replaceAll('\n', '').trim()
-	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
+    // return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
 }
 
 function getChannelNameShort() {
-	return getChannelName().substr(0, 20);
+    return getChannelName().substr(0, 20);
 }
 
 function getVideoTitle() {
     return qsv('.title.ytd-video-primary-info-renderer').innerText
-	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
+    // return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
 }
 
 function getVideoTitleShort() {
-	return getVideoTitle()//.substr(0, 30);
+    return getVideoTitle()//.substr(0, 30);
 }
 
 function updateWindowTitle() {
-	dbg('updateWindowTitle()');
-	var videoLength = getVideoLengthFriendly();
-	var channelName = getChannelNameShort();
-	var videoTitle = getVideoTitleShort();
+    dbg('updateWindowTitle()');
+    var videoLength = getVideoLengthFriendly();
+    var channelName = getChannelNameShort();
+    var videoTitle = getVideoTitleShort();
 
-// 	setWindowTitle([videoLength, channelName, videoTitle].join('—'));
-	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
-	setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
-	//isTitleUpdated = true;
+//     setWindowTitle([videoLength, channelName, videoTitle].join('—'));
+    setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
+    setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
+    //isTitleUpdated = true;
 }
 
 function getVideoDate() {
@@ -162,42 +162,42 @@ function $createWikiLink() {
 
 var isTitleUpdated = false;
 function waitForLoad() {
-	log('waitForLoad');
-	if (isTitleUpdated) return;
+    log('waitForLoad');
+    if (isTitleUpdated) return;
 
-	//dbg(unsafeWindow.ytInitialPlayerResponse, 'unsafeWindow.ytInitialPlayerResponse')
+    //dbg(unsafeWindow.ytInitialPlayerResponse, 'unsafeWindow.ytInitialPlayerResponse')
 
-	if (! unsafeWindow.ytInitialPlayerResponse) {
-		log('waiting another 2 sec for ytInitialPlayerResponse');
-		setTimeout(waitForLoad, 2000);
-		return;
-	}
+    if (! unsafeWindow.ytInitialPlayerResponse) {
+        log('waiting another 2 sec for ytInitialPlayerResponse');
+        setTimeout(waitForLoad, 2000);
+        return;
+    }
 
-	//dbg('video details:', unsafeWindow.ytInitialPlayerResponse.videoDetails);
+    //dbg('video details:', unsafeWindow.ytInitialPlayerResponse.videoDetails);
 
-	//setTimeout(function () {
-		// TODO: can setTimeout be removed?
-		// log('e.target =', e.target);
-		//var innerHtml = e.target.innerHTML;
-		// log('innerHTML length =', innerHtml.length);
-		// TODO: delete below check (and replace qsv with qs?) - it's ugly
-		//if (innerHtml.length > 150 || !innerHtml.includes('Add to calendar'))
-		//	return;  // quick return to avoid multiple querySelectors
-		//if (qsv('.event-description') && qsv('a[href*="google.com/calendar"]')) {
-			log('video title =', getVideoTitleShort());
-			updateWindowTitle();
-		//}
-	//}, 20);
+    //setTimeout(function () {
+        // TODO: can setTimeout be removed?
+        // log('e.target =', e.target);
+        //var innerHtml = e.target.innerHTML;
+        // log('innerHTML length =', innerHtml.length);
+        // TODO: delete below check (and replace qsv with qs?) - it's ugly
+        //if (innerHtml.length > 150 || !innerHtml.includes('Add to calendar'))
+        //    return;  // quick return to avoid multiple querySelectors
+        //if (qsv('.event-description') && qsv('a[href*="google.com/calendar"]')) {
+            log('video title =', getVideoTitleShort());
+            updateWindowTitle();
+        //}
+    //}, 20);
 
-	const $eventTargets = qsav('#description .yt-formatted-string.bold')
+    const $eventTargets = qsav('#description .yt-formatted-string.bold')
     Array.from($eventTargets)
-		.map(el => el.addEventListener('dblclick', $createWikiLink, true))
-	// dbg('dblcilk event targets:', $eventTargets)
+        .map(el => el.addEventListener('dblclick', $createWikiLink, true))
+    // dbg('dblclick event targets:', $eventTargets)
 }
 
 setTimeout(function () {
-	waitForLoad();
+    waitForLoad();
 }, 6000);
 // window eventListener doesn't work well for some reason
-// 	window.addEventListener('load', waitForLoad, true);
+// window.addEventListener('load', waitForLoad, true);
 log('YouTube Better Window Title: started script')
