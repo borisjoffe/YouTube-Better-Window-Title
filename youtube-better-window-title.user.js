@@ -1,20 +1,12 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.6
+// @version      1.2.7
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
 // @grant        unsafeWindow
 // ==/UserScript==
-
-// UPDATES:
-// 2022-09-02 - fix date selector - change from #info... to #description
-// 2022-01-07 - fix '#date' selector not working anymore
-// 2021-05-24 - fix channel name to avoid duplicate text
-// 2021-05-07 - fix newlines and extra whitespace in channel name
-// 2021-01-13 - add zim wiki link when double clicking date
-// 2020-07-21 - fix bug where clicking on new videos doesn't update title (due to using initial player data instead of DOM)
 
 /*
 The MIT License (MIT)
@@ -57,13 +49,28 @@ function dbg() {
 
 var
 	qs = document.querySelector.bind(document),
+	qsa = document.querySelectorAll.bind(document),
 	err = console.error.bind(console),
 	log = console.log.bind(console),
 	euc = encodeURIComponent;
 
 function qsv(elmStr, parent) {
-	var elm = parent ? parent.querySelector(elmStr) : qs(elmStr);
+    var elm
+    if (typeof parent === 'string') elm = qsv(parent).querySelector(elmStr)
+    else if (typeof parent === 'object') elm = parent.querySelector(elmStr)
+    else elm = qs(elmStr);
+
 	if (!elm) err('(qs) Could not get element -', elmStr);
+	return elm;
+}
+
+function qsav(elmStr, parent) {
+	var elm
+    if (typeof parent === 'string') elm = qsv(parent).querySelectorAll(elmStr)
+    else if (typeof parent === 'object') elm = parent.querySelectorAll(elmStr)
+    else elm = qsa(elmStr);
+
+	if (!elm) err('(qsa) Could not get element -', elmStr);
 	return elm;
 }
 
@@ -147,7 +154,9 @@ function $createWikiLink() {
         + '</div>'
     */
 
-    navigator.clipboard.writeText(createWikiLink())
+    var wikiLink = createWikiLink()
+    navigator.clipboard.writeText(wikiLink)
+    log('DOUBLE CLICK: wiki link copied to clipboard:', wikiLink)
 }
 
 
@@ -180,14 +189,15 @@ function waitForLoad() {
 		//}
 	//}, 20);
 
-    // update selector to #description
-    qsv('#description').addEventListener('dblclick', $createWikiLink, true)
-
+	const $eventTargets = qsav('#description .yt-formatted-string.bold')
+    Array.from($eventTargets)
+		.map(el => el.addEventListener('dblclick', $createWikiLink, true))
+	// dbg('dblcilk event targets:', $eventTargets)
 }
 
 setTimeout(function () {
 	waitForLoad();
-}, 5000);
+}, 6000);
 // window eventListener doesn't work well for some reason
 // 	window.addEventListener('load', waitForLoad, true);
-log('youtube better window title')
+log('YouTube Better Window Title: started script')
