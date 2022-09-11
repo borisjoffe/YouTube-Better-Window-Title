@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.8
+// @version      1.2.9
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -189,7 +189,8 @@ function waitForLoad() {
         //}
     //}, 20);
 
-    const $eventTargets = qsav('#description .yt-formatted-string.bold')
+    // const $eventTargets = qsav('#description .yt-formatted-string.bold')
+    const $eventTargets = qsav('#info-strings .ytd-video-primary-info-renderer')
     Array.from($eventTargets)
         .map(el => el.addEventListener('dblclick', $createWikiLink, true))
     // dbg('dblclick event targets:', $eventTargets)
