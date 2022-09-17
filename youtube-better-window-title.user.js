@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.10
+// @version      1.2.11
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -40,171 +40,179 @@ THE SOFTWARE.
 // Util
 const DEBUG = false;
 function dbg() {
-    if (DEBUG)
-        console.log.apply(console, arguments);
+	if (DEBUG)
+		console.log.apply(console, arguments);
 
-    return arguments[0];
+	return arguments[0];
 }
 
 
 var
-    qs = document.querySelector.bind(document),
-    qsa = document.querySelectorAll.bind(document),
-    err = console.error.bind(console),
-    log = console.log.bind(console),
-    euc = encodeURIComponent;
+	qs = document.querySelector.bind(document),
+	qsa = document.querySelectorAll.bind(document),
+	err = console.error.bind(console),
+	log = console.log.bind(console),
+	euc = encodeURIComponent;
 
 function qsv(elmStr, parent) {
-    var elm
-    if (typeof parent === 'string') elm = qsv(parent).querySelector(elmStr)
-    else if (typeof parent === 'object') elm = parent.querySelector(elmStr)
-    else elm = qs(elmStr);
+	var elm
+	if (typeof parent === 'string') elm = qsv(parent).querySelector(elmStr)
+	else if (typeof parent === 'object') elm = parent.querySelector(elmStr)
+	else elm = qs(elmStr);
 
-    if (!elm) err('(qs) Could not get element -', elmStr);
-    return elm;
+	if (!elm) err('(qs) Could not get element -', elmStr);
+	return elm;
 }
 
 function qsav(elmStr, parent) {
-    var elm
-    if (typeof parent === 'string') elm = qsv(parent).querySelectorAll(elmStr)
-    else if (typeof parent === 'object') elm = parent.querySelectorAll(elmStr)
-    else elm = qsa(elmStr);
+	var elm
+	if (typeof parent === 'string') elm = qsv(parent).querySelectorAll(elmStr)
+	else if (typeof parent === 'object') elm = parent.querySelectorAll(elmStr)
+	else elm = qsa(elmStr);
 
-    if (!elm) err('(qsa) Could not get element -', elmStr);
-    return elm;
+	if (!elm) err('(qsa) Could not get element -', elmStr);
+	return elm;
 }
 
 function getProp(obj, path, defaultValue) {
-    path = Array.isArray(path) ? Array.from(path) : path.split('.');
-    var prop = obj;
+	path = Array.isArray(path) ? Array.from(path) : path.split('.');
+	var prop = obj;
 
-    while (path.length && obj) {
-        prop = obj[path.shift()];
-    }
+	while (path.length && obj) {
+		prop = obj[path.shift()];
+	}
 
-    return prop != null ? prop : defaultValue;
+	return prop != null ? prop : defaultValue;
 }
 
 function getWindowTitle() { return document.title; }
 
 function setWindowTitle(newTitle) {
-    document.title = newTitle;
-    log('newTitle =', newTitle);
+	document.title = newTitle;
+	log('newTitle =', newTitle);
 }
 
 function getVideoLengthSeconds() {
-    return qsv('.ytp-progress-bar').getAttribute('aria-valuemax')
-    // return unsafeWindow.ytInitialPlayerResponse.videoDetails.lengthSeconds;
+	return qsv('.ytp-progress-bar').getAttribute('aria-valuemax')
+	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.lengthSeconds;
 }
 
 function getVideoLengthFriendly() {
-    // TODO: update
-    return Math.round(getVideoLengthSeconds() / 60) + 'm';
+	// TODO: update
+	return Math.round(getVideoLengthSeconds() / 60) + 'm';
 }
 
 function getChannelName() {
-    return qsv('#channel-name a').innerText.replaceAll('\n', '').trim()
-    // return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
+	return qsv('#channel-name a').innerText.replaceAll('\n', '').trim()
+	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
 }
 
 function getChannelNameShort() {
-    return getChannelName().substr(0, 20);
+	return getChannelName().substr(0, 20);
 }
 
 function getVideoTitle() {
-    return qsv('.title.ytd-video-primary-info-renderer').innerText
-    // return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
+	return qsv('.title.ytd-video-primary-info-renderer').innerText
+	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
 }
 
 function getVideoTitleShort() {
-    return getVideoTitle()//.substr(0, 30);
+	return getVideoTitle()//.substr(0, 30);
 }
 
 function updateWindowTitle() {
-    dbg('updateWindowTitle()');
-    var videoLength = getVideoLengthFriendly();
-    var channelName = getChannelNameShort();
-    var videoTitle = getVideoTitleShort();
+	dbg('updateWindowTitle()');
+	var videoLength = getVideoLengthFriendly();
+	var channelName = getChannelNameShort();
+	var videoTitle = getVideoTitleShort();
 
-    // Don't duplicate channel name if it's part of the video title
-    if (videoTitle.startsWith(channelName))
-        videoTitle = videoTitle.substring(channelName.length)
-    // Trim leading dashes e.g. often used as "<artist> - <title>"
-    if (videoTitle.trim().startsWith('-'))
-        videoTitle = videoTitle.trim().substring(1).trim()
+	// Don't duplicate channel name if it's part of the video title
+	if (videoTitle.startsWith(channelName))
+		videoTitle = videoTitle.substring(channelName.length)
+	// Trim leading dashes e.g. often used as "<artist> - <title>"
+	if (videoTitle.trim().startsWith('-'))
+		videoTitle = videoTitle.trim().substring(1).trim()
 
-    setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
-    setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
-    //isTitleUpdated = true;
+	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
+	setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
+	//isTitleUpdated = true;
 }
 
 function getVideoDate() {
-    return getProp(qsv('#date'), 'innerText', '').trim() || qsv('meta[itemprop="uploadDate"]').getAttribute('content')
+	return getProp(qsv('#date'), 'innerText', '').trim() || qsv('meta[itemprop="uploadDate"]').getAttribute('content')
 }
 
 function getVideoYear() {
-    const dateArr = getVideoDate().split(',')
-    return dateArr[dateArr.length - 1].trim()
+	const dateArr = getVideoDate().split(',')
+	return dateArr[dateArr.length - 1].trim()
 }
 
 function createWikiLink() {
-    return '[[' + window.location.href + '|' + getVideoTitle() + ']] - '
-        + getChannelName() + ', ' + getVideoYear() + ', ' + getVideoLengthFriendly()
+	return '[[' + window.location.href + '|' + getVideoTitle() + ']] - '
+		+ getChannelName() + ', ' + getVideoYear() + ', ' + getVideoLengthFriendly()
 }
 
-function $createWikiLink() {
-    /*
-    qsv('#info.ytd-video-primary-info-renderer').lastChild.innerHTML +=
-        '<div class="style-scope ytd-video-primary-info-renderer" style="color: white">'
-        + createWikiLink()
-        + '</div>'
-    */
+function $createWikiLink($ev) {
+	/*
+	qsv('#info.ytd-video-primary-info-renderer').lastChild.innerHTML +=
+		'<div class="style-scope ytd-video-primary-info-renderer" style="color: white">'
+		+ createWikiLink()
+		+ '</div>'
+	*/
 
-    var wikiLink = createWikiLink()
-    navigator.clipboard.writeText(wikiLink)
-    log('DOUBLE CLICK: wiki link copied to clipboard:', wikiLink)
+	dbg('dblclick ev.target', $ev.target)
+	if ($ev.target.tagName !== 'SPAN') {
+		dbg('SKIPPING dblclick: ev target is not SPAN. Is:', $ev.target.tagName)
+		return
+	}
+
+	const isValidClassName = ['ytd-video-primary-info-renderer', 'yt-formatted-string bold']
+		.filter(validClassName => $ev.target.className.includes(validClassName))
+		.length
+
+	if (isValidClassName) {
+		const wikiLink = createWikiLink()
+		navigator.clipboard.writeText(wikiLink)
+		log('DOUBLE CLICK: wiki link copied to clipboard:', wikiLink)
+	} else {
+		console.debug('SKIPPING dblclick: ev target is span, but not right class. Classes are:', $ev.target.className)
+	}
 }
 
 
 var isTitleUpdated = false;
 function waitForLoad() {
-    log('waitForLoad');
-    if (isTitleUpdated) return;
+	log('waitForLoad');
+	if (isTitleUpdated) return;
 
-    //dbg(unsafeWindow.ytInitialPlayerResponse, 'unsafeWindow.ytInitialPlayerResponse')
+	//dbg(unsafeWindow.ytInitialPlayerResponse, 'unsafeWindow.ytInitialPlayerResponse')
 
-    if (! unsafeWindow.ytInitialPlayerResponse) {
-        log('waiting another 2 sec for ytInitialPlayerResponse');
-        setTimeout(waitForLoad, 2000);
-        return;
-    }
+	if (! unsafeWindow.ytInitialPlayerResponse) {
+		log('waiting another 2 sec for ytInitialPlayerResponse');
+		setTimeout(waitForLoad, 2000);
+		return;
+	}
 
-    //dbg('video details:', unsafeWindow.ytInitialPlayerResponse.videoDetails);
+	//dbg('video details:', unsafeWindow.ytInitialPlayerResponse.videoDetails);
 
-    //setTimeout(function () {
-        // TODO: can setTimeout be removed?
-        // log('e.target =', e.target);
-        //var innerHtml = e.target.innerHTML;
-        // log('innerHTML length =', innerHtml.length);
-        // TODO: delete below check (and replace qsv with qs?) - it's ugly
-        //if (innerHtml.length > 150 || !innerHtml.includes('Add to calendar'))
-        //    return;  // quick return to avoid multiple querySelectors
-        //if (qsv('.event-description') && qsv('a[href*="google.com/calendar"]')) {
-            log('video title =', getVideoTitleShort());
-            updateWindowTitle();
-        //}
-    //}, 20);
+	console.debug('video title =', getVideoTitleShort());
+	updateWindowTitle();
 
-    // const $eventTargets = qsav('#description .yt-formatted-string.bold')
-    const $eventTargets = qsav('#info-strings .ytd-video-primary-info-renderer')
-    Array.from($eventTargets)
-        .map(el => el.addEventListener('dblclick', $createWikiLink, true))
-    // dbg('dblclick event targets:', $eventTargets)
+	const $eventTargetParents = ['#info-strings', '#description-inline-expander']
+		.map(selectorStr => qsv(selectorStr))
+		.map($el => {
+			// log('add listener to:', $el)
+			if (!$el) return
+			$el.removeEventListener('dblclick', $createWikiLink, true)
+			$el.addEventListener('dblclick', $createWikiLink, true)
+		})
+	// dbg('dblclick event targets:', $eventTargets)
 }
 
 setTimeout(function () {
-    waitForLoad();
+	waitForLoad();
 }, 6000);
 // window eventListener doesn't work well for some reason
 // window.addEventListener('load', waitForLoad, true);
 log('YouTube Better Window Title: started script')
+
