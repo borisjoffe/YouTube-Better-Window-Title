@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.9
+// @version      1.2.10
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -126,7 +126,13 @@ function updateWindowTitle() {
     var channelName = getChannelNameShort();
     var videoTitle = getVideoTitleShort();
 
-//     setWindowTitle([videoLength, channelName, videoTitle].join('—'));
+    // Don't duplicate channel name if it's part of the video title
+    if (videoTitle.startsWith(channelName))
+        videoTitle = videoTitle.substring(channelName.length)
+    // Trim leading dashes e.g. often used as "<artist> - <title>"
+    if (videoTitle.trim().startsWith('-'))
+        videoTitle = videoTitle.trim().substring(1).trim()
+
     setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
     setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
     //isTitleUpdated = true;
