@@ -1,12 +1,15 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.14
+// @version      1.2.15
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
 // @match        https://*.youtube.com/shorts/*
 // @grant        unsafeWindow
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // ==/UserScript==
 
 /*
@@ -37,6 +40,14 @@ THE SOFTWARE.
 /* eslint-disable no-console, no-unused-vars */
 'use strict';
 
+
+function getExpandComments() { return JSON.parse(GM_getValue('expandcomments', false)) }
+console.log(getExpandComments())
+
+GM_registerMenuCommand("Set EXPAND_COMMENTS", function() {
+    var val = prompt("Value for EXPAND_COMMENTS? (true or false) Current value is listed below", getExpandComments())
+    GM_setValue("expandcomments", val);
+});
 
 // Util
 const DEBUG = false;
@@ -211,7 +222,8 @@ function waitForLoad() {
 		.map(selector => qsv(selector).addEventListener('dblclick', $createWikiLink, true))
 }
 
-setInterval($clickReadMoreInComments, 10000)
+if (getExpandComments())
+	setInterval($clickReadMoreInComments, 10000)
 
 setTimeout(function () {
 	waitForLoad();
