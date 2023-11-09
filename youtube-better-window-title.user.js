@@ -1,17 +1,18 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.12
+// @version      1.2.13
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
+// @match        https://*.youtube.com/shorts/*
 // @grant        unsafeWindow
 // ==/UserScript==
 
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018, 2020, 2021, 2022 Boris Joffe
+Copyright (c) 2018, 2020, 2021, 2022, 2023 Boris Joffe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -180,6 +181,12 @@ function $createWikiLink($ev) {
 }
 
 
+/** Click "Read More" to expand comments and expand replies to comments too */
+function $clickReadMoreInComments() {
+	qsav('.more-button').forEach(($btn) => $btn.checkVisibility() && $btn.click())
+}
+
+
 var isTitleUpdated = false;
 function waitForLoad() {
 	log('waitForLoad');
@@ -203,6 +210,8 @@ function waitForLoad() {
 	eventSelectors
 		.map(selector => qsv(selector).addEventListener('dblclick', $createWikiLink, true))
 }
+
+setInterval($clickReadMoreInComments, 10000)
 
 setTimeout(function () {
 	waitForLoad();
