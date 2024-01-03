@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.15
+// @version      1.2.16
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -15,7 +15,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018, 2020, 2021, 2022, 2023 Boris Joffe
+Copyright (c) 2018, 2020, 2021, 2022, 2023. 2024 Boris Joffe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -178,7 +178,7 @@ function $createWikiLink($ev) {
 		return
 	}
 
-	const isValidClassName = ['ytd-video-primary-info-renderer', 'yt-formatted-string bold']
+	const isValidClassName = ['ytd-video-primary-info-renderer', 'yt-formatted-string']
 		.filter(validClassName => $ev.target.className.includes(validClassName))
 		.length
 
