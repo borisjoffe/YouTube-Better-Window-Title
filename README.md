@@ -7,6 +7,9 @@ Features
 --------
 - Quickly view YouTube video length in minutes (rounded) and Channel Name in the tab name so you don't have to switch tabs to browse through and sort your youtube (works great with tab manager extensions too)
 - When double-clicking on the video date, copy a wiki link (compatible with zim-wiki) to the clipboard to make it easier to add video references in PIM system
+- When enabled (via the extension menu), automatically expand comments and load more comments
+- Quickly report Spam comments - when clicking the comment dropdown, the extension will 
+automatically click "Report" for you and automatically select the first option, "Unwanted Commercial Content and Spam". You will still have to manually click the button to submit your report
 
 
 Known Issues

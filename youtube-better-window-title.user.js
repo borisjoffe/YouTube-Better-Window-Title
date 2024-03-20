@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.2.16
+// @version      1.3.0
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -48,6 +48,9 @@ GM_registerMenuCommand("Set EXPAND_COMMENTS", function() {
     var val = prompt("Value for EXPAND_COMMENTS? (true or false) Current value is listed below", getExpandComments())
     GM_setValue("expandcomments", val);
 });
+
+function getQuickReport() { return JSON.parse(GM_getValue('quickreport', true)) }
+console.log(getQuickReport())
 
 // Util
 const DEBUG = false;
@@ -224,6 +227,26 @@ function waitForLoad() {
 
 if (getExpandComments())
 	setInterval($clickReadMoreInComments, 10000)
+
+if (getQuickReport())
+	setInterval($quickReportComment, 5000)
+
+function handleDropdownClick(e) {
+	setTimeout(() => {
+		// click "Report"
+		document.querySelector('ytd-menu-popup-renderer yt-icon').click()
+		// click Spam
+		setTimeout(() => document.querySelector('.tp-yt-paper-radio-button').click(), 200)
+	}, 250)
+}
+
+function $quickReportComment() {
+	const dropdownButtons = Array.from(document.querySelectorAll('.yt-icon-button'))
+	dropdownButtons.map(btn => {
+		btn.removeEventListener('click', handleDropdownClick)
+		btn.addEventListener('click', handleDropdownClick)
+	})
+}
 
 setTimeout(function () {
 	waitForLoad();
