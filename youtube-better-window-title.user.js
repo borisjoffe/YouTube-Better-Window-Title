@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.3.0
+// @version      1.3.1
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -45,13 +45,17 @@ THE SOFTWARE.
 function getExpandComments() { return JSON.parse(GM_getValue('expandcomments', false)) }
 console.log(getExpandComments())
 
+function getQuickReport() { return JSON.parse(GM_getValue('quickreport', false)) }
+console.log(getQuickReport())
+
 GM_registerMenuCommand("Set EXPAND_COMMENTS", function() {
     var val = prompt("Value for EXPAND_COMMENTS? (true or false) Current value is listed below", getExpandComments())
     GM_setValue("expandcomments", val);
-});
-
-function getQuickReport() { return JSON.parse(GM_getValue('quickreport', true)) }
-console.log(getQuickReport())
+})
+GM_registerMenuCommand("Set QUICK_REPORT_COMMENT", function() {
+    var val = prompt("Value for QUICK_REPORT_COMMENT? (true or false) Current value is listed below", getQuickReport())
+    GM_setValue("quickreport", val);
+})
 
 // Util
 const DEBUG = false;
@@ -150,8 +154,7 @@ function updateWindowTitle() {
 		videoTitle = videoTitle.trim().substring(1).trim()
 
 	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
-	setTimeout(updateWindowTitle, (DEBUG ? 5000 : 5000));
-	//isTitleUpdated = true;
+	setTimeout(updateWindowTitle, (DEBUG ? 5_000 : 5_000));
 }
 
 function getVideoDate() {
@@ -196,22 +199,14 @@ function $createWikiLink($ev) {
 }
 
 
-/** Click "Read More" to expand comments and expand replies to comments too */
-function $clickReadMoreInComments() {
-	qsav('.more-button').forEach(($btn) => $btn.checkVisibility() && $btn.click())
-}
-
-
-var isTitleUpdated = false;
 function waitForLoad() {
 	log('waitForLoad');
-	if (isTitleUpdated) return;
 
 	//dbg(unsafeWindow.ytInitialPlayerResponse, 'unsafeWindow.ytInitialPlayerResponse')
 
 	if (! unsafeWindow.ytInitialPlayerResponse) {
 		log('waiting another 2 sec for ytInitialPlayerResponse');
-		setTimeout(waitForLoad, 2000);
+		setTimeout(waitForLoad, 2_000);
 		return;
 	}
 
@@ -227,32 +222,45 @@ function waitForLoad() {
 }
 
 if (getExpandComments())
-	setInterval($clickReadMoreInComments, 10000)
+	setInterval($clickReadMoreInComments, 10_000)
+
+/** Click "Read More" to expand comments and expand replies to comments too */
+function $clickReadMoreInComments() {
+	qsav('.more-button').forEach(($btn) => $btn.checkVisibility() && $btn.click())
+}
+
 
 if (getQuickReport())
-	setInterval($quickReportComment, 5000)
+	setInterval($quickReportComment, 5_000)
 
 function handleDropdownClick(e) {
 	setTimeout(() => {
 		// click "Report"
-		document.querySelector('ytd-menu-popup-renderer yt-icon').click()
+		qs('ytd-menu-popup-renderer yt-icon').click()
 		// click Spam
-		setTimeout(() => document.querySelector('.tp-yt-paper-radio-button').click(), 200)
+		setTimeout(() =>
+			Array.from(qsa('.YtRadioButtonItemViewModelLabel'))
+				.filter(x => x.textContent.includes('Spam'))[0]
+				.click()
+		, 200)
 	}, 250)
 }
 
+// Click "Report" when clicking comment dropdown
 function $quickReportComment() {
-	const dropdownButtons = Array.from(document.querySelectorAll('.yt-icon-button'))
+	const dropdownButtons = Array.from(qsa('.yt-icon-button'))
 	dropdownButtons.map(btn => {
 		btn.removeEventListener('click', handleDropdownClick)
 		btn.addEventListener('click', handleDropdownClick)
 	})
+	log('(YT Better Window Title) Added quickReportComment listener')
 }
 
 setTimeout(function () {
 	waitForLoad();
-}, 6000);
+}, 6_000);
 // window eventListener doesn't work well for some reason
 // window.addEventListener('load', waitForLoad, true);
+// window.addEventListener('focus', waitForLoad, true);
 log('YouTube Better Window Title: started script')
 
