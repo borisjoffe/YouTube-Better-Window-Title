@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.3.1
+// @version      1.3.2
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -16,7 +16,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018, 2020, 2021, 2022, 2023. 2024 Boris Joffe
+Copyright (c) 2018, 2020-2025 Boris Joffe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,18 +43,19 @@ THE SOFTWARE.
 
 
 function getExpandComments() { return JSON.parse(GM_getValue('expandcomments', false)) }
-console.log(getExpandComments())
+console.log('expandcomments', getExpandComments())
 
 function getQuickReport() { return JSON.parse(GM_getValue('quickreport', false)) }
-console.log(getQuickReport())
+console.log('quickreport', getQuickReport())
 
 GM_registerMenuCommand("Set EXPAND_COMMENTS", function() {
     var val = prompt("Value for EXPAND_COMMENTS? (true or false) Current value is listed below", getExpandComments())
-    GM_setValue("expandcomments", val);
+    GM_setValue("expandcomments", !!JSON.parse(val));
 })
+
 GM_registerMenuCommand("Set QUICK_REPORT_COMMENT", function() {
     var val = prompt("Value for QUICK_REPORT_COMMENT? (true or false) Current value is listed below", getQuickReport())
-    GM_setValue("quickreport", val);
+    GM_setValue("quickreport", !!JSON.parse(val));
 })
 
 // Util
