@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.3.2
+// @version      1.4.0
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/watch?*
@@ -222,34 +222,35 @@ function waitForLoad() {
 		.map(selector => qsv(selector).addEventListener('dblclick', $createWikiLink, true))
 }
 
-if (getExpandComments())
-	setInterval($clickReadMoreInComments, 10_000)
+setInterval($clickReadMoreInComments, 10_000)
 
 /** Click "Read More" to expand comments and expand replies to comments too */
 function $clickReadMoreInComments() {
+	if (!getExpandComments()) return
 	qsav('.more-button').forEach(($btn) => $btn.checkVisibility() && $btn.click())
 }
 
 
-if (getQuickReport())
-	setInterval($quickReportComment, 5_000)
+
+setInterval($quickReportComment, 5_000)
 
 function handleDropdownClick(e) {
 	setTimeout(() => {
 		// click "Report"
-		qs('ytd-menu-popup-renderer yt-icon').click()
+		qsv('ytd-menu-popup-renderer yt-icon').click()
 		// click Spam
 		setTimeout(() =>
-			Array.from(qsa('.YtRadioButtonItemViewModelLabel'))
+			Array.from(qsav('.YtRadioButtonItemViewModelLabel'))
 				.filter(x => x.textContent.includes('Spam'))[0]
 				.click()
-		, 200)
+		, 250)
 	}, 250)
 }
 
 // Click "Report" when clicking comment dropdown
 function $quickReportComment() {
-	const dropdownButtons = Array.from(qsa('.yt-icon-button'))
+	if (!getQuickReport()) return
+	const dropdownButtons = Array.from(qsav('.yt-icon-button'))
 	dropdownButtons.map(btn => {
 		btn.removeEventListener('click', handleDropdownClick)
 		btn.addEventListener('click', handleDropdownClick)
