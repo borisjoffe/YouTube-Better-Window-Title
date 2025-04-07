@@ -131,8 +131,11 @@ function setWindowTitle(newTitle) {
 }
 
 function getVideoLengthSeconds() {
-	return qsv('.ytp-progress-bar').getAttribute('aria-valuemax')
+	// only works for first video
+	// return getProp(unsafeWindow.ytplayer, 'config.args.length_seconds')
 	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.lengthSeconds;
+
+	return qsv('.ytp-progress-bar').getAttribute('aria-valuemax')
 }
 
 function getVideoLengthFriendly() {
@@ -141,8 +144,12 @@ function getVideoLengthFriendly() {
 }
 
 function getChannelName() {
-	return qsv('#channel-name a').innerText.replaceAll('\n', '').trim()
+	// only works for first video
+	// return getProp(unsafeWindow.ytplayer, 'config.args.author')
 	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
+
+	// WARNING: #channel-name is not a unique id
+	return qsv('#below #channel-name a').innerText.replaceAll('\n', '').trim()
 }
 
 function getChannelNameShort() {
@@ -150,8 +157,11 @@ function getChannelNameShort() {
 }
 
 function getVideoTitle() {
-	return qsv('.title.ytd-video-primary-info-renderer').innerText
+	// only works for first video
+	// return getProp(unsafeWindow.ytplayer, 'config.args.title')
 	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
+
+	return qsv('.title.ytd-video-primary-info-renderer').innerText
 }
 
 function getVideoTitleShort() {
