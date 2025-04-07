@@ -117,7 +117,7 @@ function getProp(obj, path, defaultValue) {
 	var prop = obj;
 
 	while (path.length && obj) {
-		prop = obj[path.shift()];
+		prop = prop[path.shift()]
 	}
 
 	return prop != null ? prop : defaultValue;
