@@ -78,8 +78,8 @@ GM_registerMenuCommand("Set QUICK_REPORT_COMMENT", function() {
 // Util
 const DEBUG = false;
 function dbg() {
-	if (DEBUG)
-		console.log.apply(console, arguments);
+	if (DEBUG || JSON.parse(unsafeWindow.localStorage.getItem('DEBUG')))
+		console.log.apply(console, ['DBG:', ...arguments])
 
 	return arguments[0];
 }
