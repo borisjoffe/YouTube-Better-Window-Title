@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      1.4.0
+// @version      2.0.0
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
-// @match        https://*.youtube.com/watch?*
-// @match        https://*.youtube.com/shorts/*
+// @match        https://*.youtube.com/*
+// @exclude      https://accounts.youtube.com/RotateCookiesPage*
+// @exclude      https://studio.youtube.com/persist_identity*
 // @grant        unsafeWindow
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -61,7 +62,7 @@ function onVideoPage() {
 
 // GM_deleteValue('titlerefresh')
 // GM_listValues()
-const DEFAULT_WINDOW_TITLE_REFRESH_MS = 3000
+const DEFAULT_WINDOW_TITLE_REFRESH_MS = 4000
 const MINIMUM_WINDOW_TITLE_REFRESH_MS = 50
 function isValidTitleRefresh(val) { return val && val >= MINIMUM_WINDOW_TITLE_REFRESH_MS && isFinite(val) }
 function getWindowTitleRefresh() {
@@ -85,6 +86,7 @@ GM_registerMenuCommand("Set window title refresh interval", function() {
 		// + "\n\n1000 milliseconds = 1 second"
 		+ "\n\nCurrent value is listed below (in milliseconds)"
 		, getWindowTitleRefresh())
+
 	if (val === null) alert('Cancelled. Refresh interval remains at ' + getWindowTitleRefresh() + 'ms')
 	else if (isValidTitleRefresh(val)) GM_setValue("titlerefresh", JSON.parse(val));
 	else alert('Invalid interval. Skipping setting titlerefresh')
@@ -194,10 +196,9 @@ function getVideoTitleShort() {
 }
 
 function updateWindowTitle() {
-	dbg('updateWindowTitle()');
-	var videoLength = getVideoLengthFriendly();
-	var channelName = getChannelNameShort();
-	var videoTitle = getVideoTitleShort();
+	var videoLength = getVideoLengthFriendly()
+	var channelName = getChannelNameShort()
+	var videoTitle = getVideoTitleShort()
 
 	// Don't duplicate channel name if it's part of the video title
 	if (videoTitle.startsWith(channelName))
@@ -206,8 +207,9 @@ function updateWindowTitle() {
 	if (videoTitle.trim().startsWith('-'))
 		videoTitle = videoTitle.trim().substring(1).trim()
 
-	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
-	setTimeout(updateWindowTitle, getWindowTitleRefresh());
+	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'))
+	return videoTitle
+	// setTimeout(updateWindowTitle, getWindowTitleRefresh());
 }
 
 function getVideoDate() {
@@ -253,25 +255,34 @@ function $createWikiLink($ev) {
 
 
 function waitForLoad() {
-	log('waitForLoad');
+	dbg('waitforload start', new Date().getSeconds(), '+', getWindowTitleRefresh() / 1e3, location.pathname)
 
-	//dbg(unsafeWindow.ytInitialPlayerResponse, 'unsafeWindow.ytInitialPlayerResponse')
+	setTimeout(waitForLoad, getWindowTitleRefresh())
 
-	if (! unsafeWindow.ytInitialPlayerResponse) {
-		log('waiting another 2 sec for ytInitialPlayerResponse');
-		setTimeout(waitForLoad, 2_000);
-		return;
-	}
+	if (!onVideoPage()) return dbg('skip waitforload. not on video page', unsafeWindow.location.href)
+	// log('waitForLoad');
 
-	//dbg('video details:', unsafeWindow.ytInitialPlayerResponse.videoDetails);
+	// if (! unsafeWindow.ytInitialPlayerResponse) {
+	// 	log('waiting another 2 sec for ytInitialPlayerResponse')
+	// 	setTimeout(waitForLoad, 2_000)
+	// 	return;
+	// }
 
-	console.debug('video title =', getVideoTitleShort());
-	updateWindowTitle();
+	//dbg('video details:', unsafeWindow.ytInitialPlayerResponse.videoDetails)
+
+	console.time('waitforload')
+	// console.debug('video title =', getVideoTitleShort())
+	updateWindowTitle()
 
 	// NOTE: some of these IDs are NOT unique on the page
-	const eventSelectors = ['#description-inner'/*, '#description', '#info-strings'*/]
-	eventSelectors
-		.map(selector => qsv(selector).addEventListener('dblclick', $createWikiLink, true))
+	// const eventSelectors = ['#description-inner'/*, '#description', '#info-strings'*/]
+	// eventSelectors
+	// 	.map(selector => qsv(selector).addEventListener('dblclick', $createWikiLink, true))
+	const $desc = qsv('#description-inner')
+	$desc.removeEventListener('dblclick', $createWikiLink, true)
+	$desc.addEventListener('dblclick', $createWikiLink, true)
+
+	console.timeEnd('waitforload')
 }
 
 setInterval($clickReadMoreInComments, 10_000)
@@ -309,9 +320,11 @@ function $quickReportComment() {
 	// log('(YT Better Window Title) Added quickReportComment listener')
 }
 
-setTimeout(function () {
-	waitForLoad();
-}, 6_000);
+setTimeout(waitForLoad, getWindowTitleRefresh());
+
+// setTimeout(function () {
+// 	waitForLoad();
+// }, 6_000);
 // window eventListener doesn't work well for some reason
 // window.addEventListener('load', waitForLoad, true);
 // window.addEventListener('focus', waitForLoad, true);
