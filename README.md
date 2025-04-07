@@ -3,12 +3,21 @@ Youtube Better Window Title
 
 ### Install from [GreasyFork](https://greasyfork.org/en/scripts/450646-youtube-better-window-title)
 
+Screenshots
+-----------
+
+**Before:** Tabs with no context and annoying notification count
+![before](./before.png)
+
+**After:** Easily see duration, channel name, and as much of the title as fits
+![after](./after.png)
+
 Features
 --------
 
 - **Quickly view YouTube video duration and Channel Name in the tab title** so you don't have to switch tabs to browse through and sort your youtube (works great with tab manager extensions too)
-- **Auto-expand comments** and load more comments (when enabled via the extension menu)
-- **Quickly report Spam** comments - when clicking the comment dropdown, the extension will automatically click "Report" for you and automatically select the "Spam" option (when enabled via the extension menu). You will still have to manually click the button to submit your report
+- **Auto-expand comments** and load more comments (Enable this via the extension menu)
+- **Quickly report Spam** comments - when clicking the comment dropdown, the extension will automatically click "Report" for you and automatically select the "Spam" option (Enable this via the extension menu). You will still have to manually click the Submit button to submit your report
 - When double-clicking on the video date, copy a wiki link (compatible with zim-wiki) to the clipboard to make it easier to add video references in PIM system
 
 Fixed Issues
