@@ -9,6 +9,8 @@
 // @grant        unsafeWindow
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_deleteValue
+// @grant        GM_listValues
 // @grant        GM_registerMenuCommand
 // @license      MIT
 // ==/UserScript==
@@ -41,12 +43,27 @@ THE SOFTWARE.
 /* eslint-disable no-console, no-unused-vars */
 'use strict';
 
+// GM_deleteValue('titlerefresh')
+// GM_listValues()
+const DEFAULT_WINDOW_TITLE_REFRESH_MS = 3000
+function getWindowTitleRefresh() {
+	const ms = JSON.parse(GM_getValue('titlerefresh', DEFAULT_WINDOW_TITLE_REFRESH_MS))
+	if (!ms || ms < 0 || !isFinite(ms)) return DEFAULT_WINDOW_TITLE_REFRESH_MS
+	else return ms
+}
+console.log('titlerefresh', getWindowTitleRefresh())
 
 function getExpandComments() { return JSON.parse(GM_getValue('expandcomments', false)) }
 console.log('expandcomments', getExpandComments())
 
 function getQuickReport() { return JSON.parse(GM_getValue('quickreport', false)) }
 console.log('quickreport', getQuickReport())
+
+GM_registerMenuCommand("Set window title refresh interval", function() {
+    var val = prompt("How often should the window title refresh (in milliseconds, default is: " + DEFAULT_WINDOW_TITLE_REFRESH_MS + ")? \nNOTE: 1000 milliseconds = 1 second. \nCurrent value is listed below", getWindowTitleRefresh())
+    if (val && val > 0 && isFinite(val)) GM_setValue("titlerefresh", val);
+	else alert('Invalid interval. Skipping setting titlerefresh')
+})
 
 GM_registerMenuCommand("Set EXPAND_COMMENTS", function() {
     var val = prompt("Value for EXPAND_COMMENTS? (true or false) Current value is listed below", getExpandComments())
@@ -155,7 +172,7 @@ function updateWindowTitle() {
 		videoTitle = videoTitle.trim().substring(1).trim()
 
 	setWindowTitle([videoLength + ',' + channelName, videoTitle].join('—'));
-	setTimeout(updateWindowTitle, (DEBUG ? 5_000 : 5_000));
+	setTimeout(updateWindowTitle, getWindowTitleRefresh());
 }
 
 function getVideoDate() {
