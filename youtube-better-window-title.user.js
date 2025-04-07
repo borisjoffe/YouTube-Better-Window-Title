@@ -46,10 +46,12 @@ THE SOFTWARE.
 // GM_deleteValue('titlerefresh')
 // GM_listValues()
 const DEFAULT_WINDOW_TITLE_REFRESH_MS = 3000
+const MINIMUM_WINDOW_TITLE_REFRESH_MS = 50
+function isValidTitleRefresh(val) { return val && val >= MINIMUM_WINDOW_TITLE_REFRESH_MS && isFinite(val) }
 function getWindowTitleRefresh() {
 	const ms = JSON.parse(GM_getValue('titlerefresh', DEFAULT_WINDOW_TITLE_REFRESH_MS))
-	if (!ms || ms < 0 || !isFinite(ms)) return DEFAULT_WINDOW_TITLE_REFRESH_MS
-	else return ms
+	if (isValidTitleRefresh(ms)) return ms
+	else return DEFAULT_WINDOW_TITLE_REFRESH_MS
 }
 console.log('titlerefresh', getWindowTitleRefresh())
 
@@ -60,19 +62,26 @@ function getQuickReport() { return JSON.parse(GM_getValue('quickreport', false))
 console.log('quickreport', getQuickReport())
 
 GM_registerMenuCommand("Set window title refresh interval", function() {
-    var val = prompt("How often should the window title refresh (in milliseconds, default is: " + DEFAULT_WINDOW_TITLE_REFRESH_MS + ")? \nNOTE: 1000 milliseconds = 1 second. \nCurrent value is listed below", getWindowTitleRefresh())
-    if (val && val > 0 && isFinite(val)) GM_setValue("titlerefresh", val);
+	var val = prompt("How often should the window title refresh?"
+		+ "\n\nDefault: " + DEFAULT_WINDOW_TITLE_REFRESH_MS + "ms (" + DEFAULT_WINDOW_TITLE_REFRESH_MS / 1000 + " seconds)"
+		+ "\nMinimum: " + MINIMUM_WINDOW_TITLE_REFRESH_MS + "ms (" + MINIMUM_WINDOW_TITLE_REFRESH_MS / 1000 + " seconds)"
+		+ "\nRecommended: 500-5000ms (0.5 - 5 seconds)"
+		// + "\n\n1000 milliseconds = 1 second"
+		+ "\n\nCurrent value is listed below (in milliseconds)"
+		, getWindowTitleRefresh())
+	if (val === null) alert('Cancelled. Refresh interval remains at ' + getWindowTitleRefresh() + 'ms')
+	else if (isValidTitleRefresh(val)) GM_setValue("titlerefresh", JSON.parse(val));
 	else alert('Invalid interval. Skipping setting titlerefresh')
 })
 
 GM_registerMenuCommand("Set EXPAND_COMMENTS", function() {
-    var val = prompt("Value for EXPAND_COMMENTS? (true or false) Current value is listed below", getExpandComments())
-    GM_setValue("expandcomments", !!JSON.parse(val));
+	var val = prompt("Value for EXPAND_COMMENTS? (true or false) Current value is listed below", getExpandComments())
+	GM_setValue("expandcomments", !!JSON.parse(val));
 })
 
 GM_registerMenuCommand("Set QUICK_REPORT_COMMENT", function() {
-    var val = prompt("Value for QUICK_REPORT_COMMENT? (true or false) Current value is listed below", getQuickReport())
-    GM_setValue("quickreport", !!JSON.parse(val));
+	var val = prompt("Value for QUICK_REPORT_COMMENT? (true or false) Current value is listed below", getQuickReport())
+	GM_setValue("quickreport", !!JSON.parse(val));
 })
 
 // Util
