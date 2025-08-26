@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      2.0.1
+// @version      2.0.2
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/*
@@ -52,6 +52,7 @@ if (unsafeWindow.top !== unsafeWindow.self)
 function onVideoPage() {
 	// if (unsafeWindow.location.pathname === '/watch') dbg(new Date().getSeconds(), getWindowTitleRefresh()/1000, location.pathname)
 	return unsafeWindow.location.pathname === '/watch'
+		|| unsafeWindow.location.pathname.startsWith('/live/')
 
 	// shorts have different HTML elements which need to be scraped separately. The globals with that data only work on the first video
 	// || location.pathname.startsWith('/shorts')
