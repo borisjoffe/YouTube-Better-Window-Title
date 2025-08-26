@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      2.0.0
+// @version      2.0.1
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/*
@@ -102,10 +102,13 @@ GM_registerMenuCommand("Set QUICK_REPORT_COMMENT", function() {
 	GM_setValue("quickreport", !!JSON.parse(val));
 })
 
+function useVideoObject() { return true || JSON.parse(localStorage.getItem('vidobject')) }
+console.log('useVideoObject (experimental)', useVideoObject())
+
 // Util
-const DEBUG = false;
+function getDebug() { return false || JSON.parse(unsafeWindow.localStorage.getItem('DEBUG')) }
 function dbg() {
-	if (DEBUG || JSON.parse(unsafeWindow.localStorage.getItem('DEBUG')))
+	if (getDebug())
 		console.log.apply(console, ['DBG:', ...arguments])
 
 	return arguments[0];
@@ -157,6 +160,20 @@ function setWindowTitle(newTitle) {
 	log('newTitle =', newTitle);
 }
 
+function getVideoObject(path, defaultValue) {
+	if (!useVideoObject()) return defaultValue
+
+	// TODO: cache obj for 1-20ms
+	try {
+		const obj = JSON.parse(qsv('player-microformat-renderer script').textContent)
+		return getProp(obj, path, defaultValue)
+	} catch (e) {
+		console.error('Could not get video object. Path was', path)
+		if (getDebug()) alert('Could not get video object. Path was', path)
+		return defaultValue
+	}
+}
+
 function getVideoLengthSeconds() {
 	// only works for first video
 	// return getProp(unsafeWindow.ytplayer, 'config.args.length_seconds')
@@ -176,7 +193,7 @@ function getChannelName() {
 	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.author;
 
 	// WARNING: #channel-name is not a unique id
-	return qsv('#below #channel-name a').innerText.replaceAll('\n', '').trim()
+	return getVideoObject('author') || qsv('#below #channel-name a').innerText.replaceAll('\n', '').trim()
 }
 
 function getChannelNameShort() {
@@ -188,7 +205,7 @@ function getVideoTitle() {
 	// return getProp(unsafeWindow.ytplayer, 'config.args.title')
 	// return unsafeWindow.ytInitialPlayerResponse.videoDetails.title;
 
-	return qsv('.title.ytd-video-primary-info-renderer').innerText
+	return getVideoObject('name') || qsv('.title.ytd-video-primary-info-renderer').innerText
 }
 
 function getVideoTitleShort() {
@@ -213,7 +230,9 @@ function updateWindowTitle() {
 }
 
 function getVideoDate() {
-	return getProp(qsv('#date'), 'innerText', '').trim() || qsv('meta[itemprop="uploadDate"]').getAttribute('content').split('T')[0]
+	return getVideoObject('uploadDate', '').split('T')[0] ||
+		getProp(qsv('#date'), 'innerText', '').trim() ||
+		qsv('meta[itemprop="uploadDate"]').getAttribute('content').split('T')[0]
 }
 
 function getVideoYear() {
@@ -255,7 +274,7 @@ function $createWikiLink($ev) {
 
 
 function waitForLoad() {
-	dbg('waitforload start', new Date().getSeconds(), '+', getWindowTitleRefresh() / 1e3, location.pathname)
+	// dbg('waitforload start', new Date().getSeconds(), '+', getWindowTitleRefresh() / 1e3, location.pathname)
 
 	setTimeout(waitForLoad, getWindowTitleRefresh())
 
@@ -273,6 +292,11 @@ function waitForLoad() {
 	console.time('waitforload')
 	// console.debug('video title =', getVideoTitleShort())
 	updateWindowTitle()
+
+	// setInterval(function() {
+	// 	var j = JSON.parse(qsv('player-microformat-renderer script').textContent)
+	// 	console.debug('EXPERIMENTAL json:', j)
+	// }, 30_000)
 
 	// NOTE: some of these IDs are NOT unique on the page
 	// const eventSelectors = ['#description-inner'/*, '#description', '#info-strings'*/]
