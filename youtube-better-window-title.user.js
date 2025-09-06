@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      2.0.2
+// @version      2.0.3
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/*
@@ -327,7 +327,7 @@ function handleDropdownClick(e) {
 		qsv('ytd-menu-popup-renderer yt-icon').click()
 		// click Spam
 		setTimeout(() =>
-			Array.from(qsav('.YtRadioButtonItemViewModelLabel'))
+			Array.from(qsav('.ytRadioButtonItemViewModelLabel'))
 				.filter(x => x.textContent.includes('Spam'))[0]
 				.click()
 		, 250)
