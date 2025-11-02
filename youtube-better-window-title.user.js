@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      2.0.3
+// @version      2.0.4
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/*
@@ -316,6 +316,8 @@ setInterval($clickReadMoreInComments, 10_000)
 function $clickReadMoreInComments() {
 	if (!getExpandComments() || !onVideoPage()) return
 	qsav('.more-button').forEach(($btn) => $btn.checkVisibility() && $btn.click())
+	// 2025-10 - new "replies" button - need to avoid sponsorship click (by narrowing to #comments) and "Reply" click by selecting aria-controls element
+	qsav('#comments [aria-controls="expanded-threads"] .yt-spec-button-shape-next__button-text-content').forEach(($btn) => $btn.checkVisibility() && $btn.click())
 }
 
 
