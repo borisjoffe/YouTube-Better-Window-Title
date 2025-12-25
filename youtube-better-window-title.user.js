@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      2.0.4
+// @version      2.0.5
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/*
@@ -254,9 +254,9 @@ function $createWikiLink($ev) {
 		+ '</div>'
 	*/
 
-	dbg('dblclick ev.target', $ev.target)
-	if ($ev.target.tagName !== 'SPAN') {
-		dbg('SKIPPING dblclick: ev target is not SPAN. Is:', $ev.target.tagName)
+	log('dblclick ev.target', $ev.target)
+	if (!['SPAN', 'YT-FORMATTED-STRING'].includes($ev.target.tagName)) {
+		log('SKIPPING dblclick: ev target is not SPAN or YT-FORMATTED-STRING. Is:', $ev.target.tagName)
 		return
 	}
 
