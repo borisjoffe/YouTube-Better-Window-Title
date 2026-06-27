@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Better Window Title
 // @namespace    http://borisjoffe.com
-// @version      2.0.5
+// @version      2.0.6
 // @description  Add video length in minutes (rounded) and Channel Name to Window Title
 // @author       Boris Joffe
 // @match        https://*.youtube.com/*
@@ -260,7 +260,7 @@ function $createWikiLink($ev) {
 		return
 	}
 
-	const isValidClassName = ['ytd-video-primary-info-renderer', 'yt-formatted-string']
+	const isValidClassName = ['ytd-video-primary-info-renderer', 'yt-formatted-string', 'ytd-watch-info-text']
 		.filter(validClassName => $ev.target.className.includes(validClassName))
 		.length
 
@@ -290,7 +290,7 @@ function waitForLoad() {
 
 	//dbg('video details:', unsafeWindow.ytInitialPlayerResponse.videoDetails)
 
-	console.time('waitforload')
+	//console.time('waitforload')
 	// console.debug('video title =', getVideoTitleShort())
 	updateWindowTitle()
 
@@ -307,7 +307,7 @@ function waitForLoad() {
 	$desc.removeEventListener('dblclick', $createWikiLink, true)
 	$desc.addEventListener('dblclick', $createWikiLink, true)
 
-	console.timeEnd('waitforload')
+	//console.timeEnd('waitforload')
 }
 
 setInterval($clickReadMoreInComments, 10_000)
